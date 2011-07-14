@@ -83,7 +83,7 @@ class AllRgb{
         }
         list($w, $h) = getimagesize($options['filename']);
         if($w !== 4096 && $h !== 4096){
-            Log::error('Only supports 4096x4096 original image');
+            Log::error('Only supports 4096x4096 input image');
         }
 
         Log::msg('Beginning @ '.date('g:i:s a'));
