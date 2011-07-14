@@ -17,7 +17,7 @@ $database_options = array(
 # set these in cli
 $commandline_options = array(    
     'filename'  => false,
-    'output'    => 'allrgb.png',
+    'output'    => realpath('allrgb.png'),
     'pngcrush'  => false,
     'regen'     => false,
     'dithering' => 1
