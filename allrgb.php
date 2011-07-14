@@ -136,8 +136,10 @@ class AllRgb{
             case '0' :
                 for($y = 0;$y < 4096;$y++){ 
                     for($x = 0;$x < 4096;$x++){ $this->setPixel($src, $dest, $x, $y); } 
-                    $p = floor(($y / 4096) * 100);
-                    if($y % 1024 == 0){ Log::msg($p.'% done '.date('g:i:s a'), true); }
+                    if($y % 1024 == 0){ 
+                        $p = floor(($y / 4096) * 100);
+                        Log::msg($p.'% done '.date('g:i:s a'), true); 
+                    }
                 }
                 Log::msg('1/1 pass finished '.date('g:i:s a'), true);
                 break;
