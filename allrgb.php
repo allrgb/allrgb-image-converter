@@ -391,9 +391,12 @@ class Log{
 -db..............Regenerate Database and exit. 
                  This is done automatically after each image.\n\n";
         self::msg('Examples', true);
-        echo "$ php allrgb.php -f image.png -o allrgb.png -c
-$ php allrgb.php -f image.png -d 2 -c
-$ php allrgb.php -f image.png \n\n";
+        echo "$ php allrgb.php -f image.png -o allrgb.png -c -d 2
+$ php allrgb.php -f image.png -o allrgb.png -c
+$ php allrgb.php -f image.png -d 1 -c
+$ php allrgb.php -f image.png -d 0
+$ php allrgb.php -f image.png
+$ php allrgb.php -db\n\n";
         self::msg('Requirements', true);
         echo "PHP 5.2+
 PHP CLI

@@ -20,6 +20,7 @@ $ php allrgb.php -f image.png -o allrgb.png -c
 $ php allrgb.php -f image.png -d 1 -c
 $ php allrgb.php -f image.png -d 0
 $ php allrgb.php -f image.png
+$ php allrgb.php -db
 
 Requirements
 •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
