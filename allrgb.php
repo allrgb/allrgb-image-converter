@@ -388,7 +388,14 @@ class Log{
 -db..............Regenerate Database and exit. 
                  This is done automatically after each image.\n\n";
         self::msg('Example', true);
-        echo "$ php allrgb.php -f image.png -o allrgb.png -c\n\n\n";
+        echo "$ php allrgb.php -f image.png -o allrgb.png -c\n\n";
+        self::msg('Requirements', true);
+        echo "PHP 5.2+
+PHP CLI
+GD Library
+MySQL 5+
+Database in options must already exist
+Don't forget to set the database options in the script file!\n\n\n";
         die();
     }
 }
