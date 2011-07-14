@@ -104,7 +104,7 @@ class AllRgb{
         }
         # run
         $this->o['dithering'] = ($this->o['dithering'] >= 0 && $this->o['dithering'] < 3) ? $this->o['dithering'] : 1;
-        $this->process($this->o['dithering']);
+        $this->process();
         # after
         if($this->o['pngcrush'] && file_exists($this->o['output'])){
             $this->crush();
@@ -114,7 +114,7 @@ class AllRgb{
     
     # processing
 
-    private function process($dithering){
+    private function process(){
         Log::msg("Processing Image", true);
         $src_file = $this->o['filename'];
         $src_mime = mime_content_type($src_file);
@@ -132,11 +132,12 @@ class AllRgb{
         $src   = $imagecreatefrom($src_file);
         (is_resource($src)) || Log::error("Not Valid Resource from Image.");
         $dest  = imagecreatetruecolor(4096, 4096);
-        switch($dithering){
+        switch($this->o['dithering']){
             case '0' :
                 for($y = 0;$y < 4096;$y++){ 
                     for($x = 0;$x < 4096;$x++){ $this->setPixel($src, $dest, $x, $y); } 
-                    if($y % 1024 == 0){ Log::msg(($y / 4096) * 100.'% done '.date('g:i:s a'), true); }
+                    $p = floor(($y / 4096) * 100);
+                    if($y % 1024 == 0){ Log::msg($p.'% done '.date('g:i:s a'), true); }
                 }
                 Log::msg('1/1 pass finished '.date('g:i:s a'), true);
                 break;
