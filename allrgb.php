@@ -382,16 +382,18 @@ class Log{
     }
     public static function help(){
         self::msg('Help Menu', true);
-        echo "-f [filename]....Input Filename
+        echo "-f [filename]....Input Filename.
 -o [filename]....Output Filename. If not set will use allrgb.png as filename.
--d [n]...........Dithering default: 1  available options: 0|1|2
+-d [n]...........Dithering. default: 1  available options: 0|1|2
 -c...............Run pngcrush on output file. 
                  Ouputs second file prepended with pngcrush_
                  Requires pngcrush to be installed on system.
 -db..............Regenerate Database and exit. 
                  This is done automatically after each image.\n\n";
-        self::msg('Example', true);
-        echo "$ php allrgb.php -f image.png -o allrgb.png -c\n\n";
+        self::msg('Examples', true);
+        echo "$ php allrgb.php -f image.png -o allrgb.png -c
+$ php allrgb.php -f image.png -d 2 -c
+$ php allrgb.php -f image.png \n\n";
         self::msg('Requirements', true);
         echo "PHP 5.2+
 PHP CLI

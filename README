@@ -4,18 +4,22 @@ Version 0.3 beta                           by Greg Russell • www.grgrssll.com
 
 Help Menu
 •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
--f [filename]....Input Filename
+-f [filename]....Input Filename.
 -o [filename]....Output Filename. If not set will use allrgb.png as filename.
--d [n]...........Dithering default: 1  available options: 0|1|2
+-d [n]...........Dithering. default: 1  available options: 0|1|2
 -c...............Run pngcrush on output file. 
                  Ouputs second file prepended with pngcrush_
                  Requires pngcrush to be installed on system.
 -db..............Regenerate Database and exit. 
                  This is done automatically after each image.
 
-Example
+Examples
 •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+$ php allrgb.php -f image.png -o allrgb.png -c -d 2
 $ php allrgb.php -f image.png -o allrgb.png -c
+$ php allrgb.php -f image.png -d 1 -c
+$ php allrgb.php -f image.png -d 0
+$ php allrgb.php -f image.png
 
 Requirements
 •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
