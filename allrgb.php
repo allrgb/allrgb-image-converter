@@ -3,7 +3,10 @@
 
 defined('VERSION') || define('VERSION', '0.3 beta');
 
+$dir = getcwd();
+
 Log::start();
+
 
 # set these in file REQUIRED
 $database_options = array(
@@ -17,13 +20,11 @@ $database_options = array(
 # set these in cli
 $commandline_options = array(    
     'filename'  => false,
-    'output'    => realpath('allrgb.png'),
+    'output'    => $dir.'/allrgb.png',
     'pngcrush'  => false,
     'regen'     => false,
     'dithering' => 1
 );
-
-$dir = getcwd();
 
 (defined('STDIN'))          || Log::error('Please run from the commandline');
 (extension_loaded('gd'))    || Log::error('GD Library is required for this script');
@@ -38,25 +39,19 @@ if(!count($argv)){ Log::help(); }
 foreach($argv as $k => $a){
     switch($a){
         case '-f':
-            $commandline_options['filename'] = realpath($argv[$k + 1]);
+            $commandline_options['filename']  = realpath($dir.'/'.$argv[$k + 1]);
             break;
         case '-o':
-            $commandline_options['output']   = realpath($argv[$k + 1]);
-            $path = explode('/', $commandline_options['output']);
-            array_pop($path);
-            $path = implode('/', $path);
-            if(!is_writable($path)){
-                Log::error('Insufficient Directory Permissions: Output File Not Writable');
-            }
+            $commandline_options['output']    = $dir.'/'.$argv[$k + 1];
             break;
         case '-d':
-            $commandline_options['dithering']   = intval($argv[$k + 1]);
+            $commandline_options['dithering'] = intval($argv[$k + 1]);
             break;
         case '-c':
-            $commandline_options['pngcrush'] = true;
+            $commandline_options['pngcrush']  = true;
             break;
         case '-db':
-            $commandline_options['regen']    = true;
+            $commandline_options['regen']     = true;
             break;
         case '-h':
         case '--help':
@@ -82,16 +77,23 @@ class AllRgb{
     private $o;     # options
 
     public function __construct($options){
-        if(!file_exists($options['filename'])){
-            Log::error("File does not exist - {$options['filename']}");
+        $this->o = $options;
+        if(!file_exists($this->o['filename'])){
+            Log::error("File does not exist - {$this->o['filename']}");
         }
-        list($w, $h) = getimagesize($options['filename']);
+        list($w, $h) = getimagesize($this->o['filename']);
         if($w !== 4096 && $h !== 4096){
             Log::error('Only supports 4096x4096 input image');
         }
-
+        # check output
+        $path    = explode('/', $this->o['output']);
+        $outfile = array_pop($path);
+        $path    = realpath(implode('/', $path));
+        if(!is_writable($path)){
+            Log::error('Insufficient Directory Permissions: Output File Not Writable');
+        }
+        $this->o['output'] = $path.'/'.$outfile;
         Log::msg('Beginning @ '.date('g:i:s a'));
-        $this->o = $options;
         # connect to Database
         $this->mysqlConnect();
         # check database
@@ -116,6 +118,7 @@ class AllRgb{
 
     private function process(){
         Log::msg("Processing Image", true);
+        $output   = $this->o['output'];
         $src_file = $this->o['filename'];
         $src_mime = mime_content_type($src_file);
         switch($src_mime){
@@ -176,7 +179,7 @@ class AllRgb{
                 break;
         }
         # write image
-        imagepng($dest, $this->o['output'], 9);
+        imagepng($dest, $output, 9);
         imagedestroy($src);
         imagedestroy($dest);
         Log::msg("Image complete");
@@ -390,13 +393,13 @@ class Log{
                  Requires pngcrush to be installed on system.
 -db..............Regenerate Database and exit. 
                  This is done automatically after each image.\n\n";
-        self::msg('Examples', true);
+        self::msg('Example', true);
         echo "$ php allrgb.php -f image.png -o allrgb.png -c -d 2
 $ php allrgb.php -f image.png -o allrgb.png -c
 $ php allrgb.php -f image.png -d 1 -c
 $ php allrgb.php -f image.png -d 0
 $ php allrgb.php -f image.png
-$ php allrgb.php -db\n\n";
+$ php allrgb.php -db \n\n";
         self::msg('Requirements', true);
         echo "PHP 5.2+
 PHP CLI
