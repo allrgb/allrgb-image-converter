@@ -330,7 +330,6 @@ class Log{
     public static function sep($number = 1){
         for($i = 0;$i < $number;$i++){
             echo "••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••\n";
-                   
         }
     }
     public static function error($msg){
