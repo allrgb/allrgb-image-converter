@@ -398,7 +398,7 @@ class Log{
         die();
     }
     public static function start(){
-        echo "\nAllRgb\n#############################################################################\nVersion ".VERSION."                           by Greg Russell • www.grgrssll.com\n\n";
+        echo "\nAllRgb.php\n#############################################################################\nVersion ".VERSION."                           by Greg Russell • www.grgrssll.com\n\n";
     }
     public static function help(){
         self::msg('Help Menu', true);
