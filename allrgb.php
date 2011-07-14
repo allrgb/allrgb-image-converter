@@ -24,7 +24,6 @@ $commandline_options = array(
 
 $dir = getcwd();
 
-(is_writable($dir))         || Log::error('Insufficient Directory Permissions: Not Writable');
 (defined('STDIN'))          || Log::error('Please run from the commandline');
 (extension_loaded('gd'))    || Log::error('GD Library is required for this script');
 (extension_loaded('mysql')) || Log::error('MySQL is required for this script');
@@ -42,6 +41,12 @@ foreach($argv as $k => $a){
 			break;
 		case '-o':
 			$commandline_options['output']   = realpath($argv[$k + 1]);
+			$path = explode('/', $commandline_options['output']);
+			array_pop($path);
+			$path = implode('/', $path);
+			if(!is_writable($path)){
+				Log::error('Insufficient Directory Permissions: Output File Not Writable');
+			}
 			break;
 		case '-c':
 			$commandline_options['pngcrush'] = true;
