@@ -72,12 +72,15 @@ $options  = array_merge($database_options, $commandline_options);
 
 class AllRgb{
     
-    private $link;  # db link
-    private $db;    # db name
-    private $o;     # options
+    private $link;      # db link
+    private $db;        # db name
+    private $o;         # options
+    public  $output;    # output file
 
     public function __construct($options){
+        # set options
         $this->o = $options;
+        # check input file
         if(!file_exists($this->o['filename'])){
             Log::error("File does not exist - {$this->o['filename']}");
         }
@@ -85,7 +88,7 @@ class AllRgb{
         if($w !== 4096 && $h !== 4096){
             Log::error('Only supports 4096x4096 input image');
         }
-        # check output
+        # check output file
         $path    = explode('/', $this->o['output']);
         $outfile = array_pop($path);
         $path    = realpath(implode('/', $path));
@@ -93,6 +96,8 @@ class AllRgb{
             Log::error('Insufficient Directory Permissions: Output File Not Writable');
         }
         $this->o['output'] = $path.'/'.$outfile;
+        $this->output = $this->o['output']; 
+        # all good - start
         Log::msg('Beginning @ '.date('g:i:s a'));
         # connect to Database
         $this->mysqlConnect();
@@ -189,6 +194,7 @@ class AllRgb{
     # Database stuff
     
     private function mysqlConnect(){
+        # connect to db
         $this->link = mysql_connect($this->o['host'], $this->o['user'], $this->o['pass']);
         if(!$this->link){ Log::error('db no connect'); }
         $this->db = mysql_select_db($this->o['db'], $this->link);
@@ -197,6 +203,7 @@ class AllRgb{
     }
     
     private function query($query){
+        # query db
         $result = mysql_query($query);
         $return = array();
         while($row = mysql_fetch_object($result)){ $return[] = $row; }
@@ -205,10 +212,12 @@ class AllRgb{
     }
     
     private function insert($r, $g, $b, $lum){
+        # insert into db
         mysql_query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES ({$red}, {$green}, {$blue}, {$lum})");
     }
     
     private function optimizeTable(){
+        # optomize table... necessary?
         Log::msg("Optimizing Table", true);
         mysql_query("OPTIMIZE TABLE {$this->o['table']}");
         Log::msg("DONE");
@@ -235,6 +244,7 @@ class AllRgb{
     }
     
     private function fetchCol($query){
+        # get column
         $result = $this->query($query);
         if(isset($result[0])){
             foreach($result[0] as $key => $value){ 
@@ -245,6 +255,7 @@ class AllRgb{
     }
     
     private function rm($id){
+        # delete
         if(!$id){ return false; }
         mysql_query("DELETE FROM {$this->o['table']} WHERE id = {$id} LIMIT 1");
     }
@@ -252,10 +263,12 @@ class AllRgb{
     # color stuff
     
     private function rgb2lum($r,$g,$b){
+        # get rgb's lum value
         return round(($r * 0.3) + ($g * 0.59) + ($b * 0.11));
     }
 
     private function getClosest($lum){
+        # get closest lum pixel not used yet
         $result = $this->query("SELECT id,lum,ABS(lum - {$lum}) AS distance,r,g,b FROM ((SELECT id,r,g,b,lum FROM `{$this->o['table']}` WHERE lum >= {$lum} ORDER BY lum LIMIT 1) UNION ALL (SELECT id,r,g,b,lum FROM `{$this->o['table']}` WHERE lum < {$lum} ORDER BY lum DESC LIMIT 1)) AS n ORDER BY distance LIMIT 1");
         if(is_array($result) && is_object($result[0])){
             return $result[0];
@@ -264,6 +277,7 @@ class AllRgb{
     }
 
     private function setPixel($src, $dest, $x, $y){
+        # set pixel in image
         $src_color = imagecolorat($src, $x, $y);
         $color     = imagecolorsforindex($src, $src_color);
         $lum       = $this->rgb2lum($color['red'],$color['green'],$color['blue']);
@@ -346,14 +360,16 @@ class AllRgb{
     }
     
     private function checkColors(){
+        # returns number of unused colors
         return $this->fetchCol("SELECT COUNT(*) FROM {$this->o['table']} LIMIT 1");
     }
     
     # pngcrush
     
     private function crush(){
+        # crush the image
         Log::msg('pngcrushing', true);
-        system("pngcrush -brute {$this->p['output']} pngcrush_{$this->p['output']}");
+        @system("pngcrush -brute {$this->p['output']} pngcrush_{$this->p['output']}");
         Log::msg('pngcrush finished');
     }
 
