@@ -7,7 +7,6 @@ $dir = getcwd();
 
 Log::start();
 
-
 # set these in file REQUIRED
 $database_options = array(
     'host'      => 'localhost',
