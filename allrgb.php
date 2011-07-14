@@ -10,7 +10,7 @@ $database_options = array(
     'host'      => 'localhost',
     'user'      => 'user',
     'pass'      => 'pass',
-    'db'          => 'rgb',
+    'db'        => 'rgb',
     'table'     => 'colors',
 );
 
@@ -73,9 +73,9 @@ $options  = array_merge($database_options, $commandline_options);
 
 class AllRgb{
     
-    private $link;                     # db link
-    private $db;                       # db name
-    private $o;                        # options
+    private $link;  # db link
+    private $db;    # db name
+    private $o;     # options
 
     public function __construct($options){
         if(!file_exists($options['filename'])){
@@ -242,7 +242,7 @@ class AllRgb{
         $lum       = $this->rgb2lum($color['red'],$color['green'],$color['blue']);
         $closest   = $this->getClosest($lum);
         $new_color = imagecolorallocate($dest, $closest->r, $closest->g, $closest->b);
-        $set        = imagesetpixel($dest, $x, $y, $new_color);
+        $set       = imagesetpixel($dest, $x, $y, $new_color);
         if($set){ 
             $this->rm($closest->id); 
         }
