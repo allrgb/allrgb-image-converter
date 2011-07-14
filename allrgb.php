@@ -81,7 +81,7 @@ class AllRgb{
         # set options
         $this->o = $options;
         # check input file
-        if(!file_exists($this->o['filename'])){
+        if(!$this->o['filename'] || !file_exists($this->o['filename'])){
             Log::error("File does not exist - {$this->o['filename']}");
         }
         list($w, $h) = getimagesize($this->o['filename']);
@@ -405,7 +405,7 @@ class Log{
     }
     public static function help(){
         self::msg('Help Menu', true);
-        echo "-f [filename]....Input Filename.
+        echo "-f [filename]....Input Filename jpeg or png.
 -o [filename]....Output Filename. If not set will use allrgb.png as filename.
 -d [n]...........Dithering. default: 1  available options: 0|1|2
 -c...............Run pngcrush on output file. 

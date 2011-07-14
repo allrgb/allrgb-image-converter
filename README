@@ -4,7 +4,7 @@ Version 0.3 beta                           by Greg Russell • www.grgrssll.com
 
 Help Menu
 •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
--f [filename]....Input Filename.
+-f [filename]....Input Filename. jpeg or png
 -o [filename]....Output Filename. If not set will use allrgb.png as filename.
 -d [n]...........Dithering. default: 1  available options: 0|1|2
 -c...............Run pngcrush on output file. 
