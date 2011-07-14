@@ -74,7 +74,6 @@ class AllRgb{
     private $link;      # db link
     private $db;        # db name
     private $o;         # options
-    public  $output;    # output file
 
     public function __construct($options){
         # set options
@@ -95,7 +94,6 @@ class AllRgb{
             Log::error('Insufficient Directory Permissions: Output File Not Writable');
         }
         $this->o['output'] = $path.'/'.$outfile;
-        $this->output = $this->o['output']; 
         # all good - start
         Log::msg('Beginning @ '.date('g:i:s a'));
         # connect to Database
