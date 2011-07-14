@@ -198,8 +198,8 @@ class AllRgb{
             $has_colors = ($row->$db == $this->o['table']) ? true : $has_colors; 
         }
         if($has_colors){
-            $count = $this->fetchCol("SELECT COUNT(*) FROM {$this->o['table']} LIMIT 1");
-            if($count < 16777216){
+    		$colors = $this->checkColors();
+            if($colors < 16777216){
                 ($has_backup) ? $this->reGenerateColors() : $this->generateColors();
             }
         }else{
@@ -251,6 +251,11 @@ class AllRgb{
     # generating colors
     
     private function generateColors(){
+    	$colors = $this->checkColors();
+    	if($colors == 16777216){
+    		Log::msg('Database OK', true);
+    		return true;
+    	} 
         Log::msg('Generate Color Table', true);
         # drop existing table
         mysql_query("DROP TABLE IF EXISTS {$this->o['table']}");
@@ -299,6 +304,11 @@ class AllRgb{
     }
     
     private function reGenerateColors(){
+    	$colors = $this->checkColors();
+    	if($colors == 16777216){
+    		Log::msg('Database OK', true);
+    		return true;
+    	}
         Log::msg("Regenerate Color Table", true);
         mysql_query("TRUNCATE {$this->o['table']}");
         Log::msg("Inserting Values");
@@ -306,6 +316,10 @@ class AllRgb{
         $this->optimizeTable();
         Log::msg('Done generating colors table');
         Log::sep(2);
+    }
+    
+    private function checkColors(){
+        return $this->fetchCol("SELECT COUNT(*) FROM {$this->o['table']} LIMIT 1");
     }
     
     # pngcrush
@@ -329,7 +343,7 @@ class Log{
     }
     public static function sep($number = 1){
         for($i = 0;$i < $number;$i++){
-            echo "••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••\n";
+            echo "•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••\n";
         }
     }
     public static function error($msg){
@@ -337,7 +351,7 @@ class Log{
         die();
     }
     public static function start(){
-        echo "\nAllRgb\n############################################################################\nVersion ".VERSION."                                             by Greg Russell\n\n";
+        echo "\nAllRgb\n#############################################################################\nVersion ".VERSION."                           by Greg Russell • www.grgrssll.com\n\n";
     }
     public static function help(){
         self::msg('Help Menu', true);
