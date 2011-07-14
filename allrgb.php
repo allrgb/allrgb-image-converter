@@ -369,7 +369,11 @@ class AllRgb{
     private function crush(){
         # crush the image
         Log::msg('pngcrushing', true);
-        @system("pngcrush -brute {$this->p['output']} pngcrush_{$this->p['output']}");
+        $path = explode('/', $this->p['output']);
+        $filename = array_pop($path);
+        $path = implode('/', $path);
+        $pngcrush_output = $path.'/pngcrush_'.$filename;
+        @system("pngcrush -brute {$this->p['output']} {$pngcrush_output}");
         Log::msg('pngcrush finished');
     }
 
