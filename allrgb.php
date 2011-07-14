@@ -19,7 +19,8 @@ $commandline_options = array(
     'filename'  => false,
     'output'    => 'allrgb.png',
     'pngcrush'  => false,
-    'regen'     => false
+    'regen'     => false,
+    'dithering' => 1
 );
 
 $dir = getcwd();
@@ -47,6 +48,9 @@ foreach($argv as $k => $a){
             if(!is_writable($path)){
                 Log::error('Insufficient Directory Permissions: Output File Not Writable');
             }
+            break;
+        case '-d':
+            $commandline_options['dithering']   = intval($argv[$k + 1]);
             break;
         case '-c':
             $commandline_options['pngcrush'] = true;
@@ -99,7 +103,8 @@ class AllRgb{
             die();
         }
         # run
-        $this->process();
+        $this->o['dithering'] = ($this->o['dithering'] >= 0 && $this->o['dithering'] < 3) ? $this->o['dithering'] : 1;
+        $this->process($this->o['dithering']);
         # after
         if($this->o['pngcrush'] && file_exists($this->o['output'])){
             $this->crush();
@@ -109,7 +114,7 @@ class AllRgb{
     
     # processing
 
-    private function process(){
+    private function process($dithering){
         Log::msg("Processing Image", true);
         $src_file = $this->o['filename'];
         $src_mime = mime_content_type($src_file);
@@ -127,30 +132,46 @@ class AllRgb{
         $src   = $imagecreatefrom($src_file);
         (is_resource($src)) || Log::error("Not Valid Resource from Image.");
         $dest  = imagecreatetruecolor(4096, 4096);
-        for($y = 0;$y < 4096;$y+=2){
-            for($x = 0;$x < 4096;$x+=2){ 
-                $this->setPixel($src, $dest, $x, $y); 
-            }
+        switch($dithering){
+            case '0' :
+                for($y = 0;$y < 4096;$y++){ 
+                    for($x = 0;$x < 4096;$x++){ $this->setPixel($src, $dest, $x, $y); } 
+                    if($y % 1024 == 0){ Log::msg(($y / 4096) * 100.'% done '.date('g:i:s a'), true); }
+                }
+                Log::msg('1/1 pass finished '.date('g:i:s a'), true);
+                break;
+            case '2' :
+                for($y = 0;$y < 4096;$y+=3){ for($x = 0;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('1/9 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=3){ for($x = 1;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('2/9 passes finished '.date('g:i:s a'), true); 
+                for($y = 2;$y < 4096;$y+=3){ for($x = 2;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('3/9 passes finished '.date('g:i:s a'), true); 
+                for($y = 0;$y < 4096;$y+=3){ for($x = 1;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('4/9 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=3){ for($x = 2;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('5/9 passes finished '.date('g:i:s a'), true); 
+                for($y = 2;$y < 4096;$y+=3){ for($x = 0;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('6/9 passes finished '.date('g:i:s a'), true); 
+                for($y = 0;$y < 4096;$y+=3){ for($x = 2;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('7/9 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=3){ for($x = 0;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('8/9 passes finished '.date('g:i:s a'), true); 
+                for($y = 2;$y < 4096;$y+=3){ for($x = 1;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('9/9 passes finished '.date('g:i:s a'), true); 
+                break;
+            default:
+            case '1' :
+                for($y = 0;$y < 4096;$y+=2){ for($x = 0;$x < 4096;$x+=2){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('1/4 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=2){ for($x = 1;$x < 4096;$x+=2){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('2/4 passes finished '.date('g:i:s a'), true); 
+                for($y = 0;$y < 4096;$y+=2){ for($x = 1;$x < 4096;$x+=2){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('3/4 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=2){ for($x = 0;$x < 4096;$x+=2){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('4/4 passes finished '.date('g:i:s a'), true); 
+                break;
         }
-        Log::msg('1/4 passes finished '.date('g:i:s a'), true); 
-        for($y = 1;$y < 4096;$y+=2){
-            for($x = 1;$x < 4096;$x+=2){ 
-                $this->setPixel($src, $dest, $x, $y); 
-            }
-        }
-        Log::msg('2/4 passes finished '.date('g:i:s a'), true); 
-        for($y = 0;$y < 4096;$y+=2){
-            for($x = 1;$x < 4096;$x+=2){ 
-                $this->setPixel($src, $dest, $x, $y); 
-            }
-        }
-        Log::msg('3/4 passes finished '.date('g:i:s a'), true); 
-        for($y = 1;$y < 4096;$y+=2){
-            for($x = 0;$x < 4096;$x+=2){ 
-                $this->setPixel($src, $dest, $x, $y); 
-            }
-        }
-        Log::msg('4/4 passes finished '.date('g:i:s a'), true); 
         # write image
         imagepng($dest, $this->o['output'], 9);
         imagedestroy($src);
@@ -198,7 +219,7 @@ class AllRgb{
             $has_colors = ($row->$db == $this->o['table']) ? true : $has_colors; 
         }
         if($has_colors){
-    		$colors = $this->checkColors();
+            $colors = $this->checkColors();
             if($colors < 16777216){
                 ($has_backup) ? $this->reGenerateColors() : $this->generateColors();
             }
@@ -251,11 +272,11 @@ class AllRgb{
     # generating colors
     
     private function generateColors(){
-    	$colors = $this->checkColors();
-    	if($colors == 16777216){
-    		Log::msg('Database OK', true);
-    		return true;
-    	} 
+        $colors = $this->checkColors();
+        if($colors == 16777216){
+            Log::msg('Database OK', true);
+            return true;
+        } 
         Log::msg('Generate Color Table', true);
         # drop existing table
         mysql_query("DROP TABLE IF EXISTS {$this->o['table']}");
@@ -304,11 +325,11 @@ class AllRgb{
     }
     
     private function reGenerateColors(){
-    	$colors = $this->checkColors();
-    	if($colors == 16777216){
-    		Log::msg('Database OK', true);
-    		return true;
-    	}
+        $colors = $this->checkColors();
+        if($colors == 16777216){
+            Log::msg('Database OK', true);
+            return true;
+        }
         Log::msg("Regenerate Color Table", true);
         mysql_query("TRUNCATE {$this->o['table']}");
         Log::msg("Inserting Values");
@@ -357,6 +378,7 @@ class Log{
         self::msg('Help Menu', true);
         echo "-f [filename]....Input Filename
 -o [filename]....Output Filename. If not set will use allrgb.png as filename.
+-d [n]...........Dithering default: 1  available options: 0|1|2
 -c...............Run pngcrush on output file. 
                  Ouputs second file prepended with pngcrush_
                  Requires pngcrush to be installed on system.
