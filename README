@@ -26,3 +26,4 @@ MySQL 5+
 Database in options must already exist
 Don't forget to set the database options in the script file!
 
+Windows Support unverified.
