@@ -371,7 +371,10 @@ class Log{
         }
     }
     public static function error($msg){
-        self::msg("FATAL ERROR: {$msg}", true);
+        self::msg("FATAL ERROR: {$msg}");
+        for($i = 0;$i < 6;$i++){
+            echo "☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ \n";
+        }
         die();
     }
     public static function start(){
