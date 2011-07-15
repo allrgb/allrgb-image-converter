@@ -10,8 +10,8 @@ Log::start();
 # set these in file REQUIRED
 $database_options = array(
     'host'      => 'localhost',
-    'user'      => 'user',
-    'pass'      => 'pass',
+    'user'      => 'username',
+    'pass'      => 'password',
     'db'        => 'rgb',
     'table'     => 'colors',
 );
@@ -78,13 +78,6 @@ class AllRgb{
     public function __construct($options){
         # set options
         $this->o = $options;
-        # check if a regen command
-        if($options['regen']){
-        		$this->checkDB();
-            $this->reGenerateColors();
-            Log::msg('Colors finished', true);
-            die();
-        }
         # check input file
         if(!$this->o['filename'] || !file_exists($this->o['filename'])){
             Log::error("File does not exist - {$this->o['filename']}");
@@ -107,6 +100,12 @@ class AllRgb{
         $this->mysqlConnect();
         # check database
         $this->checkDB();
+        # check if a regen command
+        if($options['regen']){
+            $this->reGenerateColors();
+            Log::msg('Colors finished', true);
+            die();
+        }
         # run
         $this->o['dithering'] = ($this->o['dithering'] >= 0 && $this->o['dithering'] < 4) ? $this->o['dithering'] : 1;
         $this->process();
@@ -227,31 +226,31 @@ class AllRgb{
     
     private function mysqlConnect(){
         # connect to db
-        $this->link = mysql_connect($this->o['host'], $this->o['user'], $this->o['pass']);
+        $this->link = @mysql_connect($this->o['host'], $this->o['user'], $this->o['pass']);
         if(!$this->link){ Log::error('db no connect'); }
-        $this->db = mysql_select_db($this->o['db'], $this->link);
+        $this->db = @mysql_select_db($this->o['db'], $this->link);
         if(!$this->db){ Log::error('no can select database'); }
         Log::msg('DB Connected');
     }
     
     private function query($query){
         # query db
-        $result = mysql_query($query);
+        $result = @mysql_query($query);
         $return = array();
-        while($row = mysql_fetch_object($result)){ $return[] = $row; }
-        mysql_free_result($result);
+        while($row = @mysql_fetch_object($result)){ $return[] = $row; }
+        @mysql_free_result($result);
         return $return;
     }
     
     private function insert($r, $g, $b, $lum){
         # insert into db
-        mysql_query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES ({$r}, {$g}, {$b}, {$lum})");
+        @mysql_query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES ({$r}, {$g}, {$b}, {$lum})");
     }
     
     private function optimizeTable(){
         # optomize table... necessary?
         Log::msg("Optimizing Table", true);
-        mysql_query("OPTIMIZE TABLE {$this->o['table']}");
+        @mysql_query("OPTIMIZE TABLE {$this->o['table']}");
         Log::msg("DONE");
     }
 
@@ -261,7 +260,7 @@ class AllRgb{
         $db = 'Tables_in_'.$this->o['db'];
         $has_colors = false;
         $has_backup = false;
-        while($row = mysql_fetch_object($tables)){ 
+        while($row = @mysql_fetch_object($tables)){ 
             $has_backup = ($row->$db == 'backup') ? true : $has_backup; 
             $has_colors = ($row->$db == $this->o['table']) ? true : $has_colors; 
         }
