@@ -78,6 +78,13 @@ class AllRgb{
     public function __construct($options){
         # set options
         $this->o = $options;
+        # check if a regen command
+        if($options['regen']){
+        		$this->checkDB();
+            $this->reGenerateColors();
+            Log::msg('Colors finished', true);
+            die();
+        }
         # check input file
         if(!$this->o['filename'] || !file_exists($this->o['filename'])){
             Log::error("File does not exist - {$this->o['filename']}");
@@ -100,12 +107,6 @@ class AllRgb{
         $this->mysqlConnect();
         # check database
         $this->checkDB();
-        # check if a regen command
-        if($options['regen']){
-            $this->reGenerateColors();
-            Log::msg('Colors finished', true);
-            die();
-        }
         # run
         $this->o['dithering'] = ($this->o['dithering'] >= 0 && $this->o['dithering'] < 4) ? $this->o['dithering'] : 1;
         $this->process();
@@ -244,7 +245,7 @@ class AllRgb{
     
     private function insert($r, $g, $b, $lum){
         # insert into db
-        mysql_query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES ({$red}, {$green}, {$blue}, {$lum})");
+        mysql_query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES ({$r}, {$g}, {$b}, {$lum})");
     }
     
     private function optimizeTable(){
