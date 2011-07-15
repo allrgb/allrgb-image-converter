@@ -22,7 +22,7 @@ $commandline_options = array(
     'output'    => $dir.'/allrgb.png',
     'pngcrush'  => false,
     'regen'     => false,
-    'dithering' => 1
+    'dithering' => 2
 );
 
 (defined('STDIN'))          || Log::error('Please run from the commandline');
@@ -107,7 +107,7 @@ class AllRgb{
             die();
         }
         # run
-        $this->o['dithering'] = ($this->o['dithering'] >= 0 && $this->o['dithering'] < 3) ? $this->o['dithering'] : 1;
+        $this->o['dithering'] = ($this->o['dithering'] >= 0 && $this->o['dithering'] < 4) ? $this->o['dithering'] : 1;
         $this->process();
         # after
         if($this->o['pngcrush'] && file_exists($this->o['output'])){
@@ -147,6 +147,40 @@ class AllRgb{
                     }
                 }
                 Log::msg('1/1 pass finished '.date('g:i:s a'), true);
+                break;
+            case '3' :
+                for($y = 0;$y < 4096;$y+=4){ for($x = 0;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('1/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=4){ for($x = 1;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('2/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 2;$y < 4096;$y+=4){ for($x = 2;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('3/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 3;$y < 4096;$y+=4){ for($x = 3;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('4/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 0;$y < 4096;$y+=4){ for($x = 1;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('5/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=4){ for($x = 2;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('6/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 2;$y < 4096;$y+=4){ for($x = 3;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('7/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 3;$y < 4096;$y+=4){ for($x = 0;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('8/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 0;$y < 4096;$y+=4){ for($x = 2;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('9/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=4){ for($x = 3;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('10/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 2;$y < 4096;$y+=4){ for($x = 0;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('11/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 3;$y < 4096;$y+=4){ for($x = 1;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('12/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 0;$y < 4096;$y+=4){ for($x = 3;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('13/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 1;$y < 4096;$y+=4){ for($x = 0;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('14/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 2;$y < 4096;$y+=4){ for($x = 1;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('15/16 passes finished '.date('g:i:s a'), true); 
+                for($y = 3;$y < 4096;$y+=4){ for($x = 2;$x < 4096;$x+=4){ $this->setPixel($src, $dest, $x, $y); } }
+                Log::msg('16/16 passes finished '.date('g:i:s a'), true); 
                 break;
             case '2' :
                 for($y = 0;$y < 4096;$y+=3){ for($x = 0;$x < 4096;$x+=3){ $this->setPixel($src, $dest, $x, $y); } }
@@ -404,7 +438,7 @@ class Log{
         self::msg('Help Menu', true);
         echo "-f [filename]....Input Filename jpeg or png.
 -o [filename]....Output Filename. If not set will use allrgb.png as filename.
--d [n]...........Dithering. default: 1  available options: 0|1|2
+-d [n]...........Dithering. default: 2  available options: 0|1|2|3
 -c...............Run pngcrush on output file. 
                  Ouputs second file prepended with pngcrush_
                  Requires pngcrush to be installed on system.
