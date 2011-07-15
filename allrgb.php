@@ -370,7 +370,7 @@ class AllRgb{
         $filename = array_pop($path);
         $path = implode('/', $path);
         $pngcrush_output = $path.'/pngcrush_'.$filename;
-        @system("pngcrush -brute {$this->o['output']} {$pngcrush_output}");
+        @system("pngcrush -brute -text b \"Software\" \"Made by allrgb.php - greg russell\" {$this->o['output']} {$pngcrush_output}");
         Log::msg('pngcrush finished');
     }
 
