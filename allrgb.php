@@ -250,7 +250,6 @@ class AllRgb{
         # optomize table... necessary?
         Log::msg("Optimizing Table", true);
         @mysql_query("OPTIMIZE TABLE {$this->o['table']}");
-        Log::msg("DONE");
     }
 
     private function checkDB(){
