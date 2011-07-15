@@ -272,9 +272,6 @@ class AllRgb{
             $this->generateColors();
         }
         $colors = $this->checkColors();
-        if($colors !== 16777216){
-        	Log::error('There was an error checking the database');
-        }
         Log::msg('Checking Database finished - '.$colors.' colors', true);
     }
     
