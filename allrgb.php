@@ -78,10 +78,11 @@ class AllRgb{
     public function __construct($options){
         # set options
         $this->o = $options;
+        # connect to Database
+        $this->mysqlConnect();
         # check if a regen command
         if($options['regen']){
             $this->checkDB();
-            Log::msg('Colors finished', true);
             die();
         }
         # check input file
@@ -102,8 +103,6 @@ class AllRgb{
         $this->o['output'] = $path.'/'.$outfile;
         # all good - start
         Log::msg('Beginning @ '.date('g:i:s a'));
-        # connect to Database
-        $this->mysqlConnect();
         # check database
         $this->checkDB();
         # run
@@ -256,6 +255,7 @@ class AllRgb{
 
     private function checkDB(){
         # check if database is full and reload if nec.
+        Log::msg('Checking Database', true);
         $tables = mysql_list_tables($this->o['db']);
         $db = 'Tables_in_'.$this->o['db'];
         $has_colors = false;
@@ -272,6 +272,11 @@ class AllRgb{
         }else{
             $this->generateColors();
         }
+        $colors = $this->checkColors();
+        if($colors !== 16777216){
+        	Log::error('There was an error checking the database');
+        }
+        Log::msg('Checking Database finished - '.$colors.' colors', true);
     }
     
     private function fetchCol($query){
