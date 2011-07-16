@@ -350,12 +350,12 @@ class AllRgb{
         while($red < 256){
             $green = 0;
             $blue = 0;
+                $values = '';
             while($green < 256){
                 $blue = 0;
-                $values = '';
                 while($blue < 256){
                     $lum = $this->rgb2lum($red, $green, $blue);
-                    $values .= ($blue) ? ',' : '';
+                    $values .= ($blue || $green) ? ',' : '';
                     $values .= "({$red}, {$green}, {$blue}, {$lum})";
                     $blue++;
                     $total++;
@@ -363,9 +363,9 @@ class AllRgb{
                         Log::msg("$total colors made.");
                     }
                 }
-                $this->insert($values);
                 $green++;
             }
+            $this->insert($values);
             $red++;
         }
         # make index on lum column
