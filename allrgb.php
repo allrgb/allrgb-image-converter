@@ -339,7 +339,8 @@ class AllRgb{
             r int(3) not null default 0,
             g int(3) not null default 0,
             b int(3) not null default 0,
-            lum int(3) not null default 0
+            lum int(3) not null default 0,
+            INDEX (lum)
         )");
         Log::msg('Generating colors');
         # fill it up
@@ -447,7 +448,9 @@ class Log{
                  Ouputs second file prepended with pngcrush_
                  Requires pngcrush to be installed on system.
 -db..............Regenerate Database and exit. 
-                 This is done automatically after each image.\n\n";
+                 This is done automatically after each image.
+--help
+-h...............Show help\n\n";
         self::msg('Example', true);
         echo "$ php allrgb.php -f image.png -o allrgb.png -c -d 2
 $ php allrgb.php -f image.png -o allrgb.png -c
