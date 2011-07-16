@@ -1,5 +1,11 @@
 #!/usr/bin/php 
 <?php
+/**
+ *    Author: Greg Russell
+ *    Script: allrgb.php
+ *    Description: Converts a 4096x4096 px image into an allrgb image
+ *    Copyright: 2011 grgrssll.com
+ */
 
 defined('VERSION') || define('VERSION', '0.4 beta');
 
@@ -9,11 +15,11 @@ Log::start();
 
 # set these in file REQUIRED
 $database_options = array(
-    'host'      => 'localhost',
-    'user'      => 'username',
-    'pass'      => 'password',
-    'db'        => 'rgb',
-    'table'     => 'colors',
+    'host'      => '',
+    'user'      => '',
+    'pass'      => '',
+    'db'        => '',
+    'table'     => '',
 );
 
 # set these in cli
@@ -75,9 +81,10 @@ class AllRgb{
     private $db;        # db name
     private $o;         # options
 
-    public function __construct($options){
+    public function __construct($options){ 
         # set options
         $this->o = $options;
+        $this->checkRequiredOptions();
         # connect to Database
         $this->mysqlConnect();
         # check if a regen command
@@ -411,6 +418,17 @@ class AllRgb{
         $pngcrush_output = $path.'/pngcrush_'.$filename;
         @system("pngcrush -brute -text b \"Software\" \"Made by allrgb.php - greg russell\" {$this->o['output']} {$pngcrush_output}");
         Log::msg('pngcrush finished', true);
+    }
+    
+    # check options
+    
+    private function checkRequiredOptions(){
+        $required = array('host', 'user', 'pass', 'db', 'table');
+        foreach($required as $r){
+            if(!isset($this->o[$r]) || !$this->o[$r]){
+                Log::error("Database Option {$r} is required");
+            }
+        }
     }
 
 }
