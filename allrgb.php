@@ -1,7 +1,7 @@
 #!/usr/bin/php 
 <?php
 
-defined('VERSION') || define('VERSION', '0.3 beta');
+defined('VERSION') || define('VERSION', '0.4 beta');
 
 $dir = getcwd();
 
@@ -113,6 +113,8 @@ class AllRgb{
             $this->crush();
         }
         $this->reGenerateColors();
+        Log::msg('All done @ '.date('g:i:s'), true);
+        Log::sep(6);
     }
     
     # processing
@@ -342,7 +344,7 @@ class AllRgb{
             lum int(3) not null default 0,
             INDEX (lum)
         )");
-        Log::msg('Generating colors');
+        Log::msg('Generating colors'. true);
         # fill it up
         $red = 0;
         $green = 0;
@@ -351,7 +353,7 @@ class AllRgb{
         while($red < 256){
             $green = 0;
             $blue = 0;
-                $values = '';
+            $values = '';
             while($green < 256){
                 $blue = 0;
                 while($blue < 256){
