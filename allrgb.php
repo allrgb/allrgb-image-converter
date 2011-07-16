@@ -373,8 +373,6 @@ class AllRgb{
         }
         # make index on lum column
         Log::msg("{$total} colors made.");
-        Log::msg('Creating index');
-        mysql_query("CREATE INDEX allrgblum ON {$this->o['table']}(lum)");
         Log::msg('Creating backup');
         mysql_query("CREATE TABLE backup SELECT * FROM {$this->o['table']}");
         # optimize table, not sure if necessary here
