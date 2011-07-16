@@ -91,7 +91,7 @@ class AllRgb{
         }
         list($w, $h) = getimagesize($this->o['filename']);
         if($w !== 4096 && $h !== 4096){
-            Log::error('Only supports 4096x4096 input image');
+            Log::error('Feed me a 4096x4096 jpeg or png');
         }
         # check output file
         $path    = explode('/', $this->o['output']);
@@ -248,13 +248,13 @@ class AllRgb{
     
     private function optimizeTable(){
         # optomize table... necessary?
-        Log::msg("Optimizing Table", true);
+        Log::msg("Optimizing Table");
         @mysql_query("OPTIMIZE TABLE {$this->o['table']}");
     }
 
     private function checkDB(){
         # check if database is full and reload if nec.
-        Log::msg('Checking Database', true);
+        Log::msg('Checking Database');
         $tables = mysql_list_tables($this->o['db']);
         $db = 'Tables_in_'.$this->o['db'];
         $has_colors = false;
@@ -329,7 +329,7 @@ class AllRgb{
             Log::msg('Database OK', true);
             return true;
         } 
-        Log::msg('Generate Color Table', true);
+        Log::msg('Generate Color Table');
         # drop existing table
         mysql_query("DROP TABLE IF EXISTS {$this->o['table']}");
         Log::msg('Creating table');
@@ -377,7 +377,7 @@ class AllRgb{
         mysql_query("CREATE TABLE backup SELECT * FROM {$this->o['table']}");
         # optimize table, not sure if necessary here
         $this->optimizeTable();
-        Log::msg('Done generating colors table');
+        Log::msg('Done generating colors table', true);
     }
     
     private function reGenerateColors(){
@@ -386,12 +386,12 @@ class AllRgb{
             Log::msg('Database OK', true);
             return true;
         }
-        Log::msg("Regenerate Color Table", true);
+        Log::msg("Regenerate Color Table");
         mysql_query("TRUNCATE {$this->o['table']}");
         Log::msg("Inserting Values");
         mysql_query("insert into {$this->o['table']} select id,r,g,b,lum from backup");
         $this->optimizeTable();
-        Log::msg('Done generating colors table');
+        Log::msg('Done generating colors table', true);
         Log::sep(2);
     }
     
@@ -404,13 +404,13 @@ class AllRgb{
     
     private function crush(){
         # crush the image
-        Log::msg('pngcrushing', true);
+        Log::msg('pngcrushing');
         $path = explode('/', $this->o['output']);
         $filename = array_pop($path);
         $path = implode('/', $path);
         $pngcrush_output = $path.'/pngcrush_'.$filename;
         @system("pngcrush -brute -text b \"Software\" \"Made by allrgb.php - greg russell\" {$this->o['output']} {$pngcrush_output}");
-        Log::msg('pngcrush finished');
+        Log::msg('pngcrush finished', true);
     }
 
 }
