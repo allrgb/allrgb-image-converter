@@ -241,9 +241,9 @@ class AllRgb{
         return $return;
     }
     
-    private function insert($r, $g, $b, $lum){
+    private function insert($values){
         # insert into db
-        @mysql_query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES ({$r}, {$g}, {$b}, {$lum})");
+        @mysql_query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES {$values}");
     }
     
     private function optimizeTable(){
@@ -352,15 +352,18 @@ class AllRgb{
             $blue = 0;
             while($green < 256){
                 $blue = 0;
+                $values = '';
                 while($blue < 256){
                     $lum = $this->rgb2lum($red, $green, $blue);
-                    $this->insert($red, $green, $blue, $lum);
+                    $values .= ($blue) ? ',' : '';
+                    $values .= "({$red}, {$green}, {$blue}, {$lum})";
                     $blue++;
                     $total++;
                     if($total > 1 && ($total % 1000000) == 0){
                         Log::msg("$total colors made.");
                     }
                 }
+                $this->insert($values);
                 $green++;
             }
             $red++;
