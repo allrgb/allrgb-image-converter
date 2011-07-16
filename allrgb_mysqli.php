@@ -1,5 +1,8 @@
 #!/usr/bin/php 
 <?php
+
+# for some reason this version is way slower. needs exploration.
+
 /**
  *    Author: Greg Russell
  *    Script: allrgb.php
@@ -80,13 +83,12 @@ class AllRgb{
     private $link;      # db link
     private $db;        # db name
     private $o;         # options
+    private $mysqli;    # mysqli
 
     public function __construct($options){ 
         # set options
         $this->o = $options;
         $this->checkRequiredOptions();
-        # all good - start
-        Log::msg('Beginning @ '.date('g:i:s a'));
         # connect to Database
         $this->mysqlConnect();
         # check if a regen command
@@ -110,6 +112,8 @@ class AllRgb{
             Log::error('Insufficient Directory Permissions: Output File Not Writable');
         }
         $this->o['output'] = $path.'/'.$outfile;
+        # all good - start
+        Log::msg('Beginning @ '.date('g:i:s a'));
         # check database
         $this->checkDB();
         # run
@@ -127,6 +131,7 @@ class AllRgb{
 
     private function process(){
         Log::msg("Processing Image", true);
+        /**/
         $output   = $this->o['output'];
         $src_file = $this->o['filename'];
         $src_mime = mime_content_type($src_file);
@@ -225,6 +230,7 @@ class AllRgb{
         imagepng($dest, $output, 9);
         imagedestroy($src);
         imagedestroy($dest);
+        /**/
         Log::msg("Image complete");
         Log::sep(2);
     }
@@ -232,59 +238,38 @@ class AllRgb{
     # Database stuff
     
     private function mysqlConnect(){
-        # connect to db
-        $this->link = @mysql_connect($this->o['host'], $this->o['user'], $this->o['pass']);
-        if(!$this->link){ Log::error('db no connect'); }
-        $this->db = @mysql_select_db($this->o['db'], $this->link);
-        if(!$this->db){ Log::error('no can select database'); }
+        $this->mysqli = new mysqli($this->o['host'], $this->o['user'], $this->o['pass'], $this->o['db']);
+        if($this->mysqli->connect_errno){
+            Log::error("MySQL ERROR: {$this->mysqli->connect_errno}");
+            Log::error("{$this->mysqli->connect_error}");
+        }
         Log::msg('DB Connected');
     }
     
-    private function query($query){
-        # query db
-        $result = @mysql_query($query);
-        $return = array();
-        while($row = @mysql_fetch_object($result)){ $return[] = $row; }
-        @mysql_free_result($result);
-        return $return;
-    }
-    
     private function insert($values){
-        # insert into db
-        @mysql_query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES {$values}");
+        $this->mysqli->query("INSERT INTO {$this->o['table']} (r,g,b,lum) VALUES {$values}");
+        return $this->mysqli->insert_id;
     }
     
     private function optimizeTable(){
-        # optomize table... necessary?
         Log::msg("Optimizing Table");
-        @mysql_query("OPTIMIZE TABLE {$this->o['table']}");
-    }
-
-    private function checkDB(){
-        # check if database is full and reload if nec.
-        Log::msg('Checking Database');
-        $colors = $this->checkColors();
-        if(!$colors || $colors < 16777216){
-            $this->generateColors();
-        }
-        Log::msg('Checking Database finished - '.$this->format($colors).' colors', true);
+        $this->mysqli->query("OPTIMIZE TABLE {$this->o['table']}");
     }
     
     private function fetchCol($query){
-        # get column
-        $result = $this->query($query);
-        if(isset($result[0])){
-            foreach($result[0] as $key => $value){ 
-                return $value; 
+        $result = $this->mysqli->query($query);
+        if($result){
+            $row = $result->fetch_object();
+            foreach($row as $value){
+                return $value;
             }
         }
         return false;
     }
     
     private function rm($id){
-        # delete
         if(!$id){ return false; }
-        mysql_query("DELETE FROM {$this->o['table']} WHERE id = {$id} LIMIT 1");
+        $this->mysqli->query("DELETE FROM {$this->o['table']} WHERE id = {$id} LIMIT 1");
     }
     
     # color stuff
@@ -296,11 +281,9 @@ class AllRgb{
 
     private function getClosest($lum){
         # get closest lum pixel not used yet
-        $result = $this->query("SELECT id,lum,ABS(lum - {$lum}) AS distance,r,g,b FROM ((SELECT id,r,g,b,lum FROM `{$this->o['table']}` WHERE lum >= {$lum} ORDER BY lum LIMIT 1) UNION ALL (SELECT id,r,g,b,lum FROM `{$this->o['table']}` WHERE lum < {$lum} ORDER BY lum DESC LIMIT 1)) AS n ORDER BY distance LIMIT 1");
-        if(is_array($result) && is_object($result[0])){
-            return $result[0];
-        }
-        return false;
+        $result = $this->mysqli->query("SELECT id,lum,ABS(lum - {$lum}) AS distance,r,g,b FROM ((SELECT id,r,g,b,lum FROM `{$this->o['table']}` WHERE lum >= {$lum} ORDER BY lum LIMIT 1) UNION ALL (SELECT id,r,g,b,lum FROM `{$this->o['table']}` WHERE lum < {$lum} ORDER BY lum DESC LIMIT 1)) AS n ORDER BY distance LIMIT 1");
+        $row = $result->fetch_object();
+        return $row;
     }
 
     private function setPixel($src, $dest, $x, $y){
@@ -318,6 +301,16 @@ class AllRgb{
     
     # generating colors
     
+    private function checkDB(){
+        # check if database is full and reload if nec.
+        Log::msg('Checking Database');
+        $colors = $this->checkColors();
+        if(!$colors || $colors < 16777216){
+            $this->generateColors();
+        }
+        Log::msg('Checking Database finished - '.$this->format($colors).' colors', true);
+    }
+    
     private function generateColors(){
         $colors = $this->checkColors();
         if($colors == 16777216){
@@ -326,10 +319,10 @@ class AllRgb{
         } 
         Log::msg('Generate Color Table');
         # drop existing table
-        mysql_query("DROP TABLE IF EXISTS {$this->o['table']}");
+        $this->mysqli->query("DROP TABLE IF EXISTS {$this->o['table']}");
         Log::msg('Creating table');
         # create new table
-        mysql_query("CREATE TABLE {$this->o['table']} (
+        $this->mysqli->query("CREATE TABLE {$this->o['table']} (
             id serial,
             r int(3) not null default 0,
             g int(3) not null default 0,
@@ -460,8 +453,7 @@ $ php allrgb.php -f image.png -d 0
 $ php allrgb.php -f image.png
 $ php allrgb.php -db \n\n";
         self::msg('Requirements', true);
-        echo "PHP 5.2+
-PHP CLI
+        echo "PHP 5.2+ with CLI
 GD Library
 MySQL 5+
 Database in options must already exist
